@@ -16,10 +16,14 @@ function run(generator) {
 	var data = null, done = false
 	// this is the callback function (resume)
 	var resumeFunc = function() {
+		console.log('inside resume func')
 		data = arguments
 		console.log(data)
+		console.log('calling check func')
 		check()
 	}
+
+	// calling generator function returns an iterator
 	var iterator = generator(resumeFunc)
 
 	var yieldedObj = iterator.next()
@@ -29,13 +33,16 @@ function run(generator) {
 	done = yieldedObj.done
 	console.log('done = ' + done)
 
-	
+
 	function check() {
+		console.log('inside check function')
 		// this is a noop until we receive the data from readFile and yielded is still true
 		while (data && !done) {
+			console.log('inside loop...')
 			var err = data[0], item = data[1]
+			data = null // to avoid infinite loop
 			if (err) { return iterator.throw(err) }
-			// pass the file contents back to generator function
+			console.log('pass the file contents back to generator function')
 			var yieldedObj = iterator.next(item)
 			console.log('yielded Object = ' + JSON.stringify(yieldedObj))
 			// yielded = !!yieldedObj
