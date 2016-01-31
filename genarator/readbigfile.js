@@ -1,8 +1,12 @@
 var fs = require('fs')
 
+// Using generators
+// read a file using fs.readFile and
+// write it into anther file using fs.writeFile
+
 var genFunc = function* (resume) {
 	// note that fs.readFile is an async function
-	// contents will have the file content which is fed back into generator
+	// contents variable will have the file content which is fed back into the generator
 	// by the iterator
 	var contents = yield fs.readFile('big.file', 'utf8', resume)
 	var uppercase = contents.toUpperCase()
@@ -24,9 +28,10 @@ function run(generator) {
 	}
 
 	// calling generator function returns an iterator
-	var iterator = generator(resumeFunc)
+	var iter = generator(resumeFunc)
+	console.log('iterator =' + iter)
 
-	var yieldedObj = iterator.next()
+	var yieldedObj = iter.next()
 
 	console.log('yielded Object = ' + JSON.stringify(yieldedObj))
 
@@ -41,14 +46,13 @@ function run(generator) {
 			console.log('inside loop...')
 			var err = data[0], item = data[1]
 			data = null // to avoid infinite loop
-			if (err) { return iterator.throw(err) }
+			if (err) { return iter.throw(err) }
 			console.log('pass the file contents back to generator function')
-			var yieldedObj = iterator.next(item)
+			var yieldedObj = iter.next(item)
 			console.log('yielded Object = ' + JSON.stringify(yieldedObj))
 			// yielded = !!yieldedObj
 			done = yieldedObj.done
 			console.log('done = ' + done)
 		}
 	}
-
 }
